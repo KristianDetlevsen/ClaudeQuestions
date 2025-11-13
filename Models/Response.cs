@@ -17,5 +17,7 @@ namespace ClaudeQuestions.Models
     {
         [JsonPropertyName("text")]
         public required string Text { get; set; }
+        [JsonPropertyName("type")]
+        public required string Type { get; set; }
     }
 }

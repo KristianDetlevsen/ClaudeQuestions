@@ -3,6 +3,7 @@ using ClaudeQuestions.Models;
 using Microsoft.Extensions.Configuration;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Runtime.CompilerServices;
 
 // Use clients
 var httpClient = new HttpClient();
@@ -10,44 +11,34 @@ var config = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
 
 // User message
 string promt = "Hello, Claude!";
-string noAnswer = "Nothing";
 
 // Get api data from appsettings
 string? baseUrl = config["AnthropicApi:BaseUrl"];
 string? apiKey = config["AnthropicApi:ApiKey"];
 string? anthropicVersion = config["AnthropicApi:AnthropicVersion"];
 string? contentType = config["AnthropicApi:ContentType"];
-string? model = config["AnthropicApi:Model"];
-string? maxTokens = config["AnthropicApi:MaxTokens"];
 
 // Add headers
 httpClient.DefaultRequestHeaders.Add("x-api-key", apiKey);
 httpClient.DefaultRequestHeaders.Add("anthropic-version", anthropicVersion);
-httpClient.DefaultRequestHeaders.Add("content-type", contentType);
-
-// The conversation with Claude
-Console.WriteLine($"User says: {promt}");
 
 List<Message> messages = [];
-
-Message message = new()
-{
-    Content = promt,
-};
-
-messages.Add(message);
+messages.Add(new Message { Content = promt });
 
 Request request = new() 
 { 
-    Model = model,
-    MaxTokens = int.Parse(maxTokens),
+    Model = config["AnthropicApi:Model"],
+    MaxTokens = int.Parse(config["AnthropicApi:MaxTokens"]),
     Messages = messages
 };
 
 // TODO make sure to check for null
 Response reply = await SendRequest(request);
 
-Console.WriteLine($"Claude says: {reply.Content[0]}");
+// The conversation with Claude
+Console.WriteLine($"User says: {promt}");
+if(reply != null)
+    Console.WriteLine($"Claude says: {reply.Content[0].Text}");
 
 async Task<Response> SendRequest(Request request)
 {
