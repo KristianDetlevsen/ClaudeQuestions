@@ -57,30 +57,57 @@ async Task RunClaudeQuestions(AppSettings appSettings, Request request)
         return;
     }
 
-    int score = 0;
-    // TODO: Adjust Response class accordingly
-    foreach (var question in reply.Content)
+    // Deserialize json response
+    List<QuizQuestion> questions = ClaudeApiService.ParseQuizResponse(reply);
+    if (questions == null  || questions.Count == 0)
     {
-        // TODO: Format text
-        Console.WriteLine($"{question.Text}");
-        Console.WriteLine("Please choose you answer: ");
-        string? answer = Console.ReadLine();
-        
-        // TODO: Change text if it was the last question
-        if(answer == question.Text)
-        {
-            score++;
-            Console.WriteLine("Correct! Press any key for next question");
-            Console.ReadLine();
-        }
-        else
-        {
-            Console.WriteLine($"Incorrect. The correct answer was {question.Text}. Press any key for next question");
-            Console.ReadLine();
-        }
+        Console.WriteLine("Couldn't load questions");
+        return;
     }
 
-    string finalScore = $"Your final score was { score}";
+    int score = 0;
+
+    // Show questions and validate answers
+    for (int i = 0; i < questions.Count; i++)
+    {
+        Console.WriteLine($"Question #{i}");
+        Console.WriteLine($"Difficulty: {questions[i].Difficulty}");
+        Console.WriteLine($"Question: {questions[i].QuestionText}");
+        List<string> optionLetters = ["A", "B", "C", "D"];
+        for (int j = 0; j < questions[i].Options.Count; j++)
+        {
+            Console.WriteLine($"{optionLetters[j]}: {questions[i].Options[j]}");
+        }
+
+        do
+        {
+            Console.WriteLine("Please type your answer and press enter: ");
+
+            string? answer = Console.ReadLine();
+
+            if (string.IsNullOrEmpty(answer) || !optionLetters.Contains(answer.ToUpper()))
+            {
+                Console.WriteLine("Please choose a valid option");
+            }
+            else if (answer.Equals(optionLetters[questions[i].CorrectAnswerIndex], StringComparison.CurrentCultureIgnoreCase))
+            {
+                score++;
+                Console.WriteLine("Correct! Press any key to continue");
+                Console.ReadLine();
+                break;
+            }
+            else
+            {
+                Console.WriteLine($"Incorrect. The correct answer was {optionLetters[questions[i].CorrectAnswerIndex]}. Press any key for next question");
+                Console.ReadLine();
+                break;
+            }
+        }
+        while (true);        
+    }
+
+    string finalScore = $"Your final score is {score}";
+
     if (score == 0)
     {
         Console.WriteLine($"{finalScore}. Read more about LLM's - then come back and try again!");
@@ -94,7 +121,7 @@ async Task RunClaudeQuestions(AppSettings appSettings, Request request)
         Console.WriteLine($"{finalScore}! Congratulations! You are now ready for your exam!");
     }
 
-    Console.WriteLine("Please press any key to go back to the main menu");
+    Console.WriteLine("Press any key to return to the main menu");
     Console.ReadLine();
     Console.Clear();
 }
@@ -141,7 +168,6 @@ void CreateHeaders(AppSettings appSettings)
 
 Request CreateRequest(AppSettings appSettings, string prompt)
 {
-    // Create request object
     Request request = new()
     {
         Model = appSettings.Model,

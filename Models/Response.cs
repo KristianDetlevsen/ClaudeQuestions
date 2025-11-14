@@ -20,4 +20,27 @@ namespace ClaudeQuestions.Models
         [JsonPropertyName("type")]
         public required string Type { get; set; }
     }
+
+    public class QuizResponse
+    {
+        [JsonPropertyName("questions")]
+        public required List<QuizQuestion> Questions { get; set; }
+    }
+
+    public class QuizQuestion
+    {
+        [JsonPropertyName("difficulty")]
+        public required DifficultyLevel Difficulty { get; set; }
+        [JsonPropertyName("questionText")]
+        public required string QuestionText { get; set; }
+        [JsonPropertyName("options")]
+        public required List<string> Options { get; set; }
+        [JsonPropertyName("correctAnswerIndex")]
+        public required int CorrectAnswerIndex { get; set; }
+    }
+
+    public enum DifficultyLevel
+    {
+        VeryEasy, Easy, Medium, Hard, VeryHard
+    }
 }
