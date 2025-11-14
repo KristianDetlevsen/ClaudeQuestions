@@ -12,10 +12,10 @@ var config = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
 string prompt = "Hello, Claude!";
 
 // Check MaxTokens from appsettings
-int standardTokens = 1024;
+int defaultTokens = 1024;
 bool success = int.TryParse(config["AnthropicApi:MaxTokens"], out int tokens);
 if (!success)
-    tokens = standardTokens;
+    tokens = defaultTokens;
 
 // Create new object with data from appsettings.json
 AppSettings appSettings = new()
@@ -45,21 +45,22 @@ httpClient.DefaultRequestHeaders.Add("x-api-key", appSettings.ApiKey);
 httpClient.DefaultRequestHeaders.Add("anthropic-version", appSettings.Version);
 
 // Create request object
-List<Message> messages = [];
-messages.Add(new Message { Content = prompt });
 Request request = new() 
 { 
     Model = appSettings.Model,
-    MaxTokens = tokens,
-    Messages = messages
+    MaxTokens = appSettings.MaxTokens,
+    Messages = [new Message { Content = prompt }]
 };
 
 // Send request and receive response from Claude
 Response reply = await ClaudeApiService.SendRequest(httpClient, appSettings.BaseUrl, request);
 
+if(reply == null || reply.Content.Count == 0)
+{
+    Console.WriteLine("Api call failed - no content received");
+    return;
+}
+
 // The conversation with Claude in the console
 Console.WriteLine($"User says: {prompt}");
-
-// Null and count check
-if(reply != null && reply.Content.Count > 0)
-    Console.WriteLine($"Claude says: {reply.Content[0].Text}");
+Console.WriteLine($"Claude says: {reply.Content[0].Text}");

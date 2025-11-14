@@ -10,7 +10,7 @@ namespace ClaudeQuestions.Services
 {
     static class ClaudeApiService
     {
-        public static async Task<Response> SendRequest(HttpClient httpClient, string baseUrl, Request request)
+        public static async Task<Response?> SendRequest(HttpClient httpClient, string baseUrl, Request request)
         {
             try
             {
