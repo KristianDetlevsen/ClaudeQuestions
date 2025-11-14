@@ -21,6 +21,6 @@ namespace ClaudeQuestions.Models
 
     public enum DifficultyLevel
     {
-        Easy, Medium, Hard
+        VeryEasy, Easy, Medium, Hard, VeryHard
     }
 }
