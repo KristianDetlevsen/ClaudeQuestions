@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http.Json;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace ClaudeQuestions.Services
@@ -25,6 +26,20 @@ namespace ClaudeQuestions.Services
                     return reply;
                 }
                 return null;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return null;
+            }
+        }
+
+        public static List<QuizQuestion>? ParseQuizResponse(Response response)
+        {
+            try
+            {
+                var quizData = JsonSerializer.Deserialize<QuizResponse>(response.Content[0].Text);
+                return quizData.Questions;
             }
             catch (Exception ex)
             {
