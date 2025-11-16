@@ -14,7 +14,7 @@ This project demonstrates API integration with Anthropic's Claude for a school a
 
 ## Prerequisites
 - .NET 6.0 or higher
-- Anthropic API key ([Get one here](https://console.anthropic.com))
+- Anthropic API key ([Get one here](https://platform.claude.com))
 
 ## Setup
 1. Clone the repository
