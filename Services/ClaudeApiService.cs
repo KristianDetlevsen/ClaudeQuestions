@@ -34,7 +34,7 @@ namespace ClaudeQuestions.Services
             }
         }
 
-        public static List<QuizQuestion> ParseQuizResponse(Response response)
+        public static List<QuizQuestion>? ParseQuizResponse(Response response)
         {
             try
             {

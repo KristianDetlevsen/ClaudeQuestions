@@ -18,14 +18,40 @@ if (appSettings == null)
 CreateHeaders(appSettings);
 
 // User message - use precise prompt engineering
-string userPrompt = "Hello, Claude!";
+string userPrompt = """
+    Generate exactly 5 multiple choice questions about Large Language Models (LLMs) with the following specifications:
+
+    Difficulty order: Easy, Easy, Medium, Medium, Hard
+    Each question must have exactly 4 options with only one correct answer.
+
+    Topics to cover:
+    1. Technical details of how LLMs work and learn
+    2. How to implement LLMs in workflows
+    3. Ethical considerations for using LLMs properly
+
+    CRITICAL: Return ONLY valid JSON with no markdown, no code blocks, no explanations, and no additional text.
+
+    Use this exact structure:
+    {
+    "questions": [
+        {
+        "difficulty": "Easy",
+          "questionText": "Your question text here?",
+          "options": ["Option A text", "Option B text", "Option C text", "Option D text"],
+          "correctAnswerIndex": 0
+        }
+      ]
+    }
+
+    Note: correctAnswerIndex should be 0-based (0 for first option, 1 for second, 2 for third, 3 for fourth).
+    """;
 
 // Run Main Menu
 do
 {
     Console.WriteLine("Claude Questions --- Main menu");
-    Console.WriteLine("Press 1 to get 5 questions about LLM's with increasing difficulty");
-    Console.WriteLine("Press 2 to close the application");
+    Console.WriteLine("Press 1 and enter to get 5 questions about LLM's with increasing difficulty");
+    Console.WriteLine("Press 2 and enter to close the application");
 
     string? menuChoice = Console.ReadLine();
 
@@ -64,20 +90,25 @@ async Task RunClaudeQuestions(AppSettings appSettings, Request request)
         Console.WriteLine("Couldn't load questions");
         return;
     }
-
+    
     int score = 0;
+    List<string> optionLetters = ["A", "B", "C", "D"];
 
     // Show questions and validate answers
     for (int i = 0; i < questions.Count; i++)
     {
-        Console.WriteLine($"Question #{i}");
+        Console.WriteLine();
+        Console.WriteLine("----------");
+        Console.WriteLine($"Question #{(i + 1)}");
         Console.WriteLine($"Difficulty: {questions[i].Difficulty}");
         Console.WriteLine($"Question: {questions[i].QuestionText}");
-        List<string> optionLetters = ["A", "B", "C", "D"];
+        
         for (int j = 0; j < questions[i].Options.Count; j++)
         {
             Console.WriteLine($"{optionLetters[j]}: {questions[i].Options[j]}");
         }
+
+        Console.WriteLine("----------");
 
         do
         {
@@ -85,20 +116,24 @@ async Task RunClaudeQuestions(AppSettings appSettings, Request request)
 
             string? answer = Console.ReadLine();
 
-            if (string.IsNullOrEmpty(answer) || !optionLetters.Contains(answer.ToUpper()))
+            if (string.IsNullOrEmpty(answer))
             {
-                Console.WriteLine("Please choose a valid option");
+                Console.WriteLine("Please type an option");
+            }
+            else if (!optionLetters.Contains(answer.ToUpper()))
+            {
+                Console.WriteLine("Please use letters A to D");
             }
             else if (answer.Equals(optionLetters[questions[i].CorrectAnswerIndex], StringComparison.CurrentCultureIgnoreCase))
             {
                 score++;
-                Console.WriteLine("Correct! Press any key to continue");
+                Console.WriteLine("Correct! Press enter to continue");
                 Console.ReadLine();
                 break;
             }
             else
             {
-                Console.WriteLine($"Incorrect. The correct answer was {optionLetters[questions[i].CorrectAnswerIndex]}. Press any key for next question");
+                Console.WriteLine($"Incorrect. The correct answer is {optionLetters[questions[i].CorrectAnswerIndex]}. Press enter to continue");
                 Console.ReadLine();
                 break;
             }
@@ -106,6 +141,7 @@ async Task RunClaudeQuestions(AppSettings appSettings, Request request)
         while (true);        
     }
 
+    // Show final score and return to main menu
     string finalScore = $"Your final score is {score}";
 
     if (score == 0)
@@ -121,7 +157,7 @@ async Task RunClaudeQuestions(AppSettings appSettings, Request request)
         Console.WriteLine($"{finalScore}! Congratulations! You are now ready for your exam!");
     }
 
-    Console.WriteLine("Press any key to return to the main menu");
+    Console.WriteLine("Press enter to return to the main menu");
     Console.ReadLine();
     Console.Clear();
 }

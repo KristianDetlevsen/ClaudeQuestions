@@ -30,6 +30,7 @@ namespace ClaudeQuestions.Models
     public class QuizQuestion
     {
         [JsonPropertyName("difficulty")]
+        [JsonConverter(typeof(JsonStringEnumConverter))]
         public required DifficultyLevel Difficulty { get; set; }
         [JsonPropertyName("questionText")]
         public required string QuestionText { get; set; }
@@ -41,6 +42,6 @@ namespace ClaudeQuestions.Models
 
     public enum DifficultyLevel
     {
-        VeryEasy, Easy, Medium, Hard, VeryHard
+        Easy, Medium, Hard
     }
 }
